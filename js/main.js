@@ -1,12 +1,12 @@
 "use strict";
 
-var isChannelReady = false;
-var isInitiator = false;
-var isStarted = false;
-var localStream;
-var pc;
-var remoteStream;
-var turnReady;
+let isChannelReady = false;
+let isInitiator = false;
+let isStarted = false;
+let localStream;
+let pc;
+let remoteStream;
+let turnReady;
 
 var pcConfig = {
   iceServers: [
@@ -24,15 +24,13 @@ var sdpConstraints = {
 
 /////////////////////////////////////////////
 
-var room = "foo";
-// Could prompt for room name:
-// room = prompt('Enter room name:');
+const room = prompt("Enter room name:");
 
-var socket = io.connect();
+const socket = io.connect();
 
-if (room !== "") {
+if (room !== "" && room !== null) {
   socket.emit("create or join", room);
-  console.log("Attempted to create or  join room", room);
+  console.log("Attempted to create or join room", room);
 }
 
 socket.on("created", function(room) {
@@ -80,7 +78,7 @@ socket.on("message", function(message) {
   } else if (message.type === "answer" && isStarted) {
     pc.setRemoteDescription(new RTCSessionDescription(message));
   } else if (message.type === "candidate" && isStarted) {
-    var candidate = new RTCIceCandidate({
+    const candidate = new RTCIceCandidate({
       sdpMLineIndex: message.label,
       candidate: message.candidate
     });
@@ -92,8 +90,8 @@ socket.on("message", function(message) {
 
 ////////////////////////////////////////////////////
 
-var localVideo = document.querySelector("#localVideo");
-var remoteVideo = document.querySelector("#remoteVideo");
+const localVideo = document.querySelector("#localVideo");
+const remoteVideo = document.querySelector("#remoteVideo");
 
 navigator.mediaDevices
   .getUserMedia({
@@ -115,7 +113,7 @@ function gotStream(stream) {
   }
 }
 
-var constraints = {
+const constraints = {
   video: true
 };
 
@@ -203,8 +201,8 @@ function onCreateSessionDescriptionError(error) {
 }
 
 function requestTurn(turnURL) {
-  var turnExists = false;
-  for (var i in pcConfig.iceServers) {
+  let turnExists = false;
+  for (let i in pcConfig.iceServers) {
     if (pcConfig.iceServers[i].urls.substr(0, 5) === "turn:") {
       turnExists = true;
       turnReady = true;
@@ -214,10 +212,10 @@ function requestTurn(turnURL) {
   if (!turnExists) {
     console.log("Getting TURN server from ", turnURL);
     // No TURN server. Get one from computeengineondemand.appspot.com:
-    var xhr = new XMLHttpRequest();
+    const xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
       if (xhr.readyState === 4 && xhr.status === 200) {
-        var turnServer = JSON.parse(xhr.responseText);
+        const turnServer = JSON.parse(xhr.responseText);
         console.log("Got TURN server: ", turnServer);
         pcConfig.iceServers.push({
           urls: "turn:" + turnServer.username + "@" + turnServer.turn,
